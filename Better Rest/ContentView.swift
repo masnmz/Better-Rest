@@ -15,6 +15,7 @@ struct ContentView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     @State private var showingAlert = false
+    @State private var showResult = false
     
     static var defaultWakeTime: Date {
         var components = DateComponents()
@@ -32,6 +33,7 @@ struct ContentView: View {
                     DatePicker("PLease Enter a time", selection: $wakeUp, displayedComponents:
                             .hourAndMinute)
                     .labelsHidden()
+                    
                 }
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Desired amount of sleep")
@@ -42,10 +44,25 @@ struct ContentView: View {
                     Text("Daily coffee intake")
                         .font(.headline)
                     
-                    Stepper("^[\(coffeeAmount) cup](inflect: true)", value: $coffeeAmount, in: 0...20)
+                    //                    Stepper("^[\(coffeeAmount) cup](inflect: true)", value: $coffeeAmount, in: 0...20)
+                    Picker("Choose", selection: $coffeeAmount) {
+                        ForEach(0..<21){
+                            Text("^[\($0) cup](inflect: true)")
+                        }
+                    }
+                }
+                if showResult {
+                    Section {
+                        VStack {
+                            Text("Your ideal Bed time is: \(alertMessage)")
+                                .font(.largeTitle)
+                        }
+                        
+                    }
                 }
                 
             }
+            
             .scrollContentBackground(.hidden)
             .background(LinearGradient(colors: [.yellow, .black], startPoint: .topLeading, endPoint: .bottomTrailing))
             
@@ -58,6 +75,7 @@ struct ContentView: View {
             } message: {
                 Text(alertMessage)
             }
+
         }
     }
     
@@ -75,9 +93,12 @@ struct ContentView: View {
             let sleepTime = wakeUp - prediction.actualSleep
             alertTitle = "Your Ideal Bed Time is: "
             alertMessage = sleepTime.formatted(date: .omitted, time: .shortened)
+            showResult = true
+
         } catch {
             alertTitle = "Error"
             alertMessage = "Sorry, there was a problem calculating your bedtime."
+            showResult = false
         }
         showingAlert = true
     }
